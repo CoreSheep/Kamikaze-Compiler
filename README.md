@@ -1,4 +1,4 @@
 # Kamikaze-Compiler
 Kamikaze Compiler
 
-Suport for Varible Declare Statement and Expression Statement.
+Suport for Variable Declaring Statement and Expression Statement.
