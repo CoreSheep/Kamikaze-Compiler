@@ -1,0 +1,23 @@
+Program -> 'main' Block
+
+Block -> '{' VariableDeclare ';' Statement ; '}'
+
+VariableDeclare -> Type IdentifierTable { ';' VariableDeclare }
+
+Type -> 'int' | 'float'
+
+IdentifierTable -> IdentifierDefinition { ',' IdentifierDefinition }
+
+IdentifierDefinition -> id IdentifierAssignment
+
+IdentifierAssignment -> '=' Expression | ε
+
+Statement -> Assignment { ';' Assignment }   //suport for extension, such as if-statement, while-statement and so on...
+
+Assignment -> 'id' '=' Expression
+
+Expression -> Term { ['+'|'-'] Term }
+
+Term -> Factor { ['*'|'/'] Factor }
+
+Factor -> id | const_int | const_float
