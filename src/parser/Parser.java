@@ -5,6 +5,8 @@ import java.util.Stack;
 import kamikazeException.exception;
 import lexer.Lexer;
 import utility.EnumType.Typ;
+import utility.Error;
+import utility.Error.ErrorType;
 import utility.Quadruple;
 import utility.Quadruple.Operation;
 import utility.QuadrupleTable;
@@ -24,6 +26,7 @@ public class Parser {
 
 	public Lexer lex;
 	public QuadrupleTable Quad;
+	public Error err;
 
 	/**
 	 * Parser Constructor
@@ -40,6 +43,7 @@ public class Parser {
 		q = new Quadruple();
 		sem = new Stack<Token>();
 		tempTokenCount = 0;
+		err = new Error();
 
 	}
 
@@ -71,7 +75,7 @@ public class Parser {
 		if (token.code != Code.End)
 			error("Compile unsuccessfully.");
 		else
-			System.out.println("Parsing successfully.");
+			System.out.println("Compiling successfully.");
 
 	}
 
@@ -84,7 +88,7 @@ public class Parser {
 			token = lex.next();
 			BK();
 		} else
-			error("NoMainException.");
+			err.error(ErrorType.NoMainException, token.line);
 
 	}
 
@@ -105,19 +109,19 @@ public class Parser {
 					if (token.code == Code.RC)
 						token = lex.next();
 					else
-						error("Requiring a Right-Curly-Brace.");
+						err.error(ErrorType.NoRightCurlyBraceException, token.line);
 				} else
-					error("Requiring a semicolon.");
+					err.error(ErrorType.NoSemicolonException, token.line);
 			} else
-				error("Requiring a semicolon.");
+				err.error(ErrorType.NoSemicolonException, token.line);
 
 		} else
-			error("Please add an left curly brace.");
+			err.error(ErrorType.NoLeftCurlyBraceException, token.line);
 
 	}
 
 	/**
-	 * VaribleDeclare -> Type IdentifierTable; VD -> TP IT;
+	 * VaribleDeclare -> Type IdentifierTable. VD -> TP IT;
 	 */
 	private void VD() {
 		// TODO Auto-generated method stub
@@ -131,7 +135,7 @@ public class Parser {
 	}
 
 	/**
-	 * IdentifierTable -> DeclareList {; Definition} ; IT -> ID { , ID }
+	 * IdentifierTable -> DeclareList {; Definition} . IT -> ID { , ID }
 	 */
 	private void IT() {
 		// TODO Auto-generated method stub
@@ -144,17 +148,32 @@ public class Parser {
 	}
 
 	/**
-	 * IdentifierDefinition -> id IdentifierAssign ID -> id IS
+	 * IdentifierDefinition -> id IdentifierAssign. ID -> id IS.
 	 */
+
 	private void ID() {
 		// TODO Auto-generated method stub
+		int id = -1;
 		if (token.code == Code.IDENTIFIER) {
 			// add semantic action
+
+			id = lex.symbolTable.hasName(token.word);
+			// lex.symbolTable.print();
+			// Check if the USERVAR is Redefined?
+			// System.out.println(id);
+			// System.out.println(lex.symbolTable.symbolTable.get(id).typ());
+			// System.out.println(lex.symbolTable.hasName("a"));
+
+			if (id != -1 && lex.symbolTable.symbolTable.get(id).typ() == symbol.typ())
+				err.error(ErrorType.RedefinitionException, token.line);
+
 			lex.symbolTable.writeType(token.value, symbol.typ());
+			lex.symbolTable.writeAddress(token.value, token.value);
+
 			token = lex.next();
 			IS();
 		} else
-			error("Requiring an identifier.");
+			err.error(ErrorType.NoIdentifierException, token.line);
 
 	}
 
@@ -203,14 +222,14 @@ public class Parser {
 				ASSIGN(preToken);
 
 			} else
-				error("Requiring an assignment.");
+				err.error(ErrorType.NoAssignmentException, token.line);
 
 		} else
-			error("Requiring a leftValue.");
+			err.error(ErrorType.NoIdentifierException, token.line);
 	}
 
 	/**
-	 * ASSIGN Statement Assign-action for quadruple.
+	 * ASSIGN Statement -- Assign-action for constructing quadruple.
 	 * 
 	 * @param idToken
 	 */
@@ -219,7 +238,7 @@ public class Parser {
 		// TODO Auto-generated method stub
 		Token tmpToken = new Token();
 		tmpToken = sem.pop();
-		q = new Quadruple(Operation.ASS, tmpToken.word, "", idToken.word);
+		q = new Quadruple(Operation.ASS, tmpToken.word, null, idToken.word);
 		// sem.push(idToken);
 		Quad.Quad.add(q);
 	}
@@ -235,7 +254,7 @@ public class Parser {
 			token = lex.next();
 			symbol.setType(Typ.FLOAT);
 		} else
-			error("Requiring a type.");
+			err.error(ErrorType.IllegalTypeException, token.line);
 	}
 
 	/**
@@ -272,7 +291,7 @@ public class Parser {
 		// TODO Auto-generated method stub
 		Token tmpToken = new Token();
 		Operation opt = operation;
-		String op1 = "", op2 = "", res = "";
+		String op1 = null, op2 = null, res = null;
 		String tempName = "";
 
 		Token t1 = new Token();
@@ -349,9 +368,10 @@ public class Parser {
 			if (token.code == Code.RP)
 				token = lex.next();
 			else
-				error("Requiring a right parenthese.");
-		} else
+				err.error(ErrorType.NoRightParentheseException, token.line);
+		} else {
 			error("No Factor in Expression.");
+		}
 	}
 
 	/*
@@ -364,7 +384,7 @@ public class Parser {
 	 * 
 	 * // System.out.println(Lexer.list); }
 	 * 
-	 * /** µ›πÈœ¬Ωµ◊”≥Ã–Ú
+	 * /** ÈÄíÂΩí‰∏ãÈôçÂ≠êÁ®ãÂ∫è
 	 */
 
 }
