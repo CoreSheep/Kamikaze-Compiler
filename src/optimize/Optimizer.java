@@ -52,7 +52,7 @@ public class Optimizer {
 	/**
 	 * Build the DAG. For each quadruple, we traverse it and analyze it. And create
 	 * DAGNode for need. I just analyze two kinds of statements, they are
-	 * ASSIGN-STATEMENT and EXPRESSION-STATEMENT¡£
+	 * ASSIGN-STATEMENT and EXPRESSION-STATEMENTã€‚
 	 * 
 	 * @author Marshall Lee
 	 * @version 1.2
@@ -225,7 +225,6 @@ public class Optimizer {
 	private boolean isComSubExp(Quadruple q) {
 
 		DAGNode tmpNode = new DAGNode();
-		// ÄæÐò±éÀúDGAÍ¼£¬²é¿´ÊÇ·ñ´æÔÚ¹«¹²×Ó±í´ïÊ½£¬Èç¹û´æÔÚ£¬Ôò·µ»Ø¶ÔÓ¦Ä¸½áµãµÄID,·ñÔò£¬·µ»Ø-1
 		for (int i = DAGTable.size() - 1; i >= 0; i--) {
 			boolean flagLeft = false, flagRight = false;
 			tmpNode = DAGTable.get(i);
